@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide: Housing Society Vendor Bill Processing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Beige & Earthy Tones -->
+    <!-- Application Structure Plan: A task-oriented interactive wizard. The user is guided through the real-world workflow of processing a bill. The core is a decision point: "Material" vs. "Service". This choice dynamically reveals the appropriate checklist and tools, like an interactive TDS Calculator. This structure was chosen because it mirrors the manager's actual thought process, turning a static document into an active, error-reducing tool, which is far more usable than a linear text page. Navigation allows jumps to key reference sections, but the primary flow is the wizard. -->
+    <!-- Visualization & Content Choices: 
+        - Roles (Manager vs. Accountant): Goal: Inform. Method: Two-column HTML/Tailwind layout. Interaction: None. Justification: Clear, side-by-side comparison for foundational knowledge.
+        - Bill Type Choice: Goal: Organize/Guide. Method: Large clickable HTML button cards. Interaction: Click to reveal next steps. Justification: This is the primary fork in the process; large buttons make the starting point obvious.
+        - Checklists (Material/Service): Goal: Inform/Organize. Method: Styled HTML lists. Interaction: User mentally follows the checklist. Justification: Simple, clear presentation of procedural steps.
+        - TDS Rules: Goal: Compare/Inform. Method: Chart.js Doughnut Chart. Interaction: Visual reference, highlighted by calculator. Justification: A visual summary of the different TDS rates is quicker to grasp than text alone. (Library: Chart.js).
+        - TDS Calculator: Goal: Relate/Calculate. Method: HTML form with JS logic. Interaction: User inputs bill data and gets an instant, accurate TDS calculation. Justification: This is the most complex part of the process. An interactive calculator provides immediate value and prevents manual errors.
+        - Final Steps: Goal: Organize. Method: Numbered HTML list with icons. Interaction: None. Justification: A clear, sequential process flow for the final administrative tasks.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        .step-card {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .nav-button {
+            transition: all 0.2s ease;
+        }
+        .nav-button:hover {
+            background-color: #A0522D; /* Sienna */
+            color: #FFF8DC; /* Cornsilk */
+        }
+        .checklist-item::before {
+            content: '✓';
+            color: #34D399; /* Emerald-400 */
+            margin-right: 0.75rem;
+            font-weight: bold;
+        }
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .visible-section {
+            display: block;
+            opacity: 1;
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 350px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 350px;
+        }
+    </style>
+</head>
+<body class="bg-[#FDF5E6] text-[#4A4A4A]">
+
+    <header class="bg-[#8B4513] text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Society Vendor Bill Processor</h1>
+            <nav class="hidden md:flex space-x-4">
+                <a href="#roles" class="nav-button px-3 py-2 rounded-md">Roles</a>
+                <a href="#process" class="nav-button px-3 py-2 rounded-md">Bill Processor</a>
+                <a href="#final" class="nav-button px-3 py-2 rounded-md">Final Steps</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="intro" class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-[#8B4513] mb-4">DAY 15 - A Modern Tool for Society Managers</h2>
+            <p class="max-w-3xl mx-auto text-lg">
+                Welcome! This interactive guide simplifies the vendor payment process. Instead of just reading notes, this tool walks you through the exact steps you need to take for any bill you receive. Start by choosing the type of bill below to get a clear, step-by-step checklist.
+            </p>
+        </section>
+
+        <section id="roles" class="mb-12 p-6 bg-white rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-center text-[#A0522D] mb-6">Understanding Key Roles: Manager vs. Accountant</h3>
+             <p class="text-center text-gray-600 mb-8">In any housing society, the Manager and Accountant have distinct but interconnected responsibilities. This section clarifies who does what, ensuring a smooth workflow for financial tasks, especially vendor payments which are a core duty of the manager, supported by the accountant's compliance and reporting work.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-[#FFF8DC] p-6 rounded-lg border border-gray-200">
+                    <h4 class="text-xl font-bold text-[#8B4513] mb-3">The Manager's Duties</h4>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li>Ensure maintenance bills are raised on time.</li>
+                        <li>Collect and deposit member payments (checks, etc.).</li>
+                        <li>Forward verified payment details to the Accountant.</li>
+                        <li>Report rented flats for Non-Occupancy Charges.</li>
+                        <li class="font-bold">Manage the entire vendor payment process (your main task here).</li>
+                    </ul>
+                </div>
+                <div class="bg-[#FFF8DC] p-6 rounded-lg border border-gray-200">
+                    <h4 class="text-xl font-bold text-[#8B4513] mb-3">The Accountant's Duties</h4>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li>Generate maintenance bills.</li>
+                        <li>Post member payment entries.</li>
+                        <li>File government returns (GST, TDS).</li>
+                        <li>Prepare financial statements (Balance Sheet, etc.).</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="process" class="mb-12">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div id="initial-choice">
+                    <h3 class="text-2xl font-bold text-center text-[#A0522D] mb-2">Vendor Bill Processor</h3>
+                    <p class="text-center text-gray-600 mb-8">This is the core of the tool. To ensure you follow the correct procedure, start by identifying the type of bill you are holding. This single choice determines all subsequent steps, including tax deductions and verification methods. Click the correct button below to begin.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div id="material-btn" class="step-card bg-green-100 p-8 rounded-lg text-center cursor-pointer border-2 border-green-300">
+                            <h4 class="text-2xl font-bold text-green-800">📄 Material Bill</h4>
+                            <p class="text-green-700 mt-2">For physical goods like cleaning supplies, bulbs, pipes, diesel, etc.</p>
+                        </div>
+                        <div id="service-btn" class="step-card bg-blue-100 p-8 rounded-lg text-center cursor-pointer border-2 border-blue-300">
+                            <h4 class="text-2xl font-bold text-blue-800">🛠️ Service Bill</h4>
+                            <p class="text-blue-700 mt-2">For labor or expertise like security, housekeeping, lift AMC, plumbers, etc.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="material-section" class="hidden-section">
+                    <h3 class="text-2xl font-bold text-green-800 mb-4">Checklist for Material Bills</h3>
+                    <p class="mb-6 text-gray-600">You've identified the bill is for materials. Follow these steps precisely. The most important rule here is that TDS is never deducted on material bills.</p>
+                    <ul class="space-y-4">
+                        <li class="checklist-item"><strong>Check for Advance:</strong> Has an advance been paid? If yes, deduct it from the total. If no, pay the full amount.</li>
+                        <li class="checklist-item"><strong>No TDS Deduction:</strong> This is a crucial rule. TDS is NEVER deducted on material bills, regardless of the amount.</li>
+                        <li class="checklist-item"><strong>GST Verification:</strong> If your society has a GST number, the vendor's bill must also have one. Otherwise, a normal bill is fine.</li>
+                        <li class="checklist-item"><strong>Verify Delivery:</strong> Match the bill against the Delivery Challan. Check items, quantities, and prices. Ensure all calculations are correct.</li>
+                        <li class="checklist-item"><strong>Mark as Checked:</strong> Once fully verified, circle the final payable amount, write "OK & Checked," and sign the bill.</li>
+                    </ul>
+                    <button class="mt-8 px-4 py-2 bg-[#8B4513] text-white rounded hover:bg-[#A0522D] back-btn">Go Back</button>
+                </div>
+                
+                <div id="service-section" class="hidden-section">
+                    <h3 class="text-2xl font-bold text-blue-800 mb-4">Checklist for Service Bills & TDS Calculator</h3>
+                     <p class="mb-6 text-gray-600">Processing service bills requires careful attention to Tax Deducted at Source (TDS). Use the checklist and the interactive calculator below to ensure you are compliant. Making a mistake here can cause issues for both the society and the vendor.</p>
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Processing Steps</h4>
+                            <ul class="space-y-4 mb-8">
+                                <li class="checklist-item"><strong>Check TDS Thresholds:</strong> TDS must be deducted if a single bill is ₹30,000+ OR the vendor's annual total crosses ₹1,00,000.</li>
+                                <li class="checklist-item"><strong>Determine TDS Rate:</strong> Use the calculator to find the correct rate based on the vendor's PAN.</li>
+                                <li class="checklist-item"><strong>Calculate TDS Correctly:</strong> <span class="font-bold">Crucial:</span> Always calculate TDS on the basic amount (before GST).</li>
+                                 <li class="checklist-item"><strong>Verify Bill Details:</strong> Check service period, rates, and GST calculations against your agreement.</li>
+                                <li class="checklist-item"><strong>Mark as Checked:</strong> After verification and TDS calculation, circle the final amount, write "OK & Checked," and sign.</li>
+                                <li class="checklist-item"><strong>Handling Mixed Bills:</strong> If a bill has both material and service, ask for two separate bills. It's cleaner and avoids incorrect TDS deductions.</li>
+                            </ul>
+                            <button class="px-4 py-2 bg-[#8B4513] text-white rounded hover:bg-[#A0522D] back-btn">Go Back</button>
+                        </div>
+
+                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                             <h4 class="text-xl font-semibold mb-3 text-center">Interactive TDS Calculator</h4>
+                             <div class="chart-container mb-4">
+                                 <canvas id="tdsChart"></canvas>
+                             </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="billAmount" class="block font-medium">Basic Bill Amount (before GST)</label>
+                                    <input type="number" id="billAmount" placeholder="e.g., 50000" class="w-full p-2 border rounded border-gray-300">
+                                </div>
+                                <div>
+                                    <label for="vendorType" class="block font-medium">Vendor Type (from PAN)</label>
+                                    <select id="vendorType" class="w-full p-2 border rounded border-gray-300">
+                                        <option value="1">Individual/Proprietor (PAN 4th letter 'P')</option>
+                                        <option value="2">Company/Firm (PAN 4th letter not 'P')</option>
+                                        <option value="10">Professional (Lawyer, CA, Architect)</option>
+                                        <option value="20">Vendor has No PAN Card</option>
+                                    </select>
+                                </div>
+                                <button id="calculate-tds-btn" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Calculate TDS</button>
+                                <div id="tds-result" class="mt-4 text-center p-4 bg-white rounded-lg border-2 border-dashed hidden">
+                                    <p class="text-lg">TDS to be deducted:</p>
+                                    <p id="tds-amount" class="text-2xl font-bold text-blue-800"></p>
+                                    <p id="tds-rate" class="text-sm text-gray-600"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="final" class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-center text-[#A0522D] mb-2">Voucher Prep & Final Payment Release</h3>
+             <p class="text-center text-gray-600 mb-8">Once the bill is verified and any necessary tax is calculated, the final phase is preparing the paperwork and releasing the payment. Following this structured process ensures all documentation is complete and auditable, protecting both you and the society.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                 <div class="bg-[#FFF8DC] p-6 rounded-lg border border-gray-200">
+                    <h4 class="text-xl font-bold text-[#8B4513] mb-3">Voucher Preparation Checklist</h4>
+                    <ul class="space-y-3">
+                        <li><span class="font-bold mr-2">1. Essential Details:</span> Ensure vendor/society names, addresses, invoice no. & date are on the bill.</li>
+                        <li><span class="font-bold mr-2">2. Voucher Header:</span> Use a serialized voucher with the society's name, reg. no., and address.</li>
+                        <li><span class="font-bold mr-2">3. Narration:</span> Clearly write the purpose of the payment (e.g., "Being amount paid towards...").</li>
+                        <li><span class="font-bold mr-2">4. Calculation:</span> On the voucher, show: Basic Amount, Less TDS, Add GST = Total Payable.</li>
+                        <li><span class="font-bold mr-2">5. Payment Details:</span> Write the amount in words, and fill in the bank, check no., and date.</li>
+                         <li><span class="font-bold mr-2">6. Prepared By:</span> Sign your initials.</li>
+                    </ul>
+                </div>
+                 <div class="bg-[#FFF8DC] p-6 rounded-lg border border-gray-200">
+                    <h4 class="text-xl font-bold text-[#8B4513] mb-3">Final Payment Release Steps</h4>
+                    <ol class="space-y-3">
+                       <li><span class="font-bold mr-2">1. 📎 Assemble Packet:</span> Staple the voucher on top of the bill. Attach the check with a U-pin (don't staple it).</li>
+                        <li><span class="font-bold mr-2">2. ✍️ Get Signatures:</span> Send the packet (check, voucher, bill) to the Secretary & Treasurer.</li>
+                        <li><span class="font-bold mr-2">3. ✅ Verify Signatures:</span> Double-check that both have signed all three items.</li>
+                        <li><span class="font-bold mr-2">4. 📞 Inform Vendor:</span> Call the vendor to let them know the check is ready.</li>
+                        <li><span class="font-bold mr-2">5. 🤝 Get Receipt Signature:</span> The vendor MUST sign the "Received" section on the voucher when they collect the check.</li>
+                        <li><span class="font-bold mr-2">6. 📁 File Securely:</span> File the signed voucher and bill in the appropriate bank file.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-4 mt-8 text-gray-500 text-sm">
+        <p>This interactive guide is based on the "Day 15" training session by Dilip Lone. For educational purposes only.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialChoice = document.getElementById('initial-choice');
+            const materialBtn = document.getElementById('material-btn');
+            const serviceBtn = document.getElementById('service-btn');
+            const materialSection = document.getElementById('material-section');
+            const serviceSection = document.getElementById('service-section');
+            const backBtns = document.querySelectorAll('.back-btn');
+            const calculateTdsBtn = document.getElementById('calculate-tds-btn');
+            const billAmountInput = document.getElementById('billAmount');
+            const vendorTypeSelect = document.getElementById('vendorType');
+            const tdsResultDiv = document.getElementById('tds-result');
+            const tdsAmountP = document.getElementById('tds-amount');
+            const tdsRateP = document.getElementById('tds-rate');
+
+            const showSection = (section) => {
+                initialChoice.classList.remove('visible-section');
+                initialChoice.classList.add('hidden-section');
+                section.classList.remove('hidden-section');
+                section.classList.add('visible-section');
+            };
+
+            const showInitialChoice = () => {
+                materialSection.classList.remove('visible-section');
+                serviceSection.classList.remove('visible-section');
+                materialSection.classList.add('hidden-section');
+                serviceSection.classList.add('hidden-section');
+                initialChoice.classList.remove('hidden-section');
+                initialChoice.classList.add('visible-section');
+            };
+
+            materialBtn.addEventListener('click', () => showSection(materialSection));
+            serviceBtn.addEventListener('click', () => showSection(serviceSection));
+            backBtns.forEach(btn => btn.addEventListener('click', showInitialChoice));
+            
+            initialChoice.classList.add('visible-section');
+
+            // TDS Calculator Logic
+            calculateTdsBtn.addEventListener('click', () => {
+                const billAmount = parseFloat(billAmountInput.value);
+                const tdsRate = parseFloat(vendorTypeSelect.value);
+
+                if (isNaN(billAmount) || billAmount <= 0) {
+                    alert('Please enter a valid bill amount.');
+                    return;
+                }
+
+                const tdsAmount = (billAmount * tdsRate) / 100;
+
+                tdsAmountP.textContent = `₹${tdsAmount.toFixed(2)}`;
+                tdsRateP.textContent = `Calculated at ${tdsRate}% TDS rate`;
+                tdsResultDiv.classList.remove('hidden');
+                
+                updateChart(tdsRate);
+            });
+            
+            // Chart.js
+            let tdsChart;
+            const chartData = {
+                labels: [
+                    'Individual (1%)',
+                    'Company (2%)',
+                    'Professional (10%)',
+                    'No PAN (20%)'
+                ],
+                datasets: [{
+                    label: 'TDS Rate',
+                    data: [1, 2, 10, 20],
+                    backgroundColor: [
+                        '#6EE7B7', // Emerald 300
+                        '#93C5FD', // Blue 300
+                        '#FDBA74', // Orange 300
+                        '#FCA5A5'  // Red 300
+                    ],
+                    borderColor: [
+                        '#34D399', // Emerald 400
+                        '#60A5FA', // Blue 400
+                        '#FB923C', // Orange 400
+                        '#F87171'  // Red 400
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            const chartConfig = {
+                type: 'doughnut',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'TDS Rates by Vendor Type'
+                        }
+                    }
+                },
+            };
+            
+            const ctx = document.getElementById('tdsChart').getContext('2d');
+            tdsChart = new Chart(ctx, chartConfig);
+
+            function updateChart(selectedRate) {
+                const rateMap = { 1: 0, 2: 1, 10: 2, 20: 3 };
+                const index = rateMap[selectedRate];
+                
+                const newBorderWidths = [1, 1, 1, 1];
+                newBorderWidths[index] = 5;
+                tdsChart.data.datasets[0].borderWidth = newBorderWidths;
+
+                const newScales = [1, 1, 1, 1];
+                // No direct scale property for doughnut slices, border is best visual cue
+                
+                tdsChart.update();
+            }
+
+            // Smooth scrolling for nav links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
